@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import print_function
+
 import sys
 sys.path.append("/home/denplusplus/Temp")
 
@@ -27,7 +29,8 @@ if __name__ == '__main__':
          'nepochs':50}
 
     folder = os.path.basename(__file__).split('.')[0]
-    if not os.path.exists(folder): os.mkdir(folder)
+    if not os.path.exists(folder):
+        os.mkdir(folder)
 
     # load the dataset
     train_set, valid_set, test_set, dic = load.atisfold(s['fold'])
@@ -102,8 +105,10 @@ if __name__ == '__main__':
             print('')
 
         # learning rate decay if no improvement in 10 epochs
-        if s['decay'] and abs(s['be']-s['ce']) >= 10: s['clr'] *= 0.5
-        if s['clr'] < 1e-5: break
+        if s['decay'] and abs(s['be']-s['ce']) >= 10:
+            s['clr'] *= 0.5
+        if s['clr'] < 1e-5: 
+            break
 
     print('BEST RESULT: epoch', e, 'valid F1', s['vf1'], 'best test F1', s['tf1'], 'with the model', folder)
 
