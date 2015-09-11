@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+import sys
+sys.path.append("/home/denplusplus/Temp")
+
 import numpy
 import time
-import sys
 import subprocess
 import os
 import random
@@ -65,7 +68,7 @@ if __name__ == '__main__':
                 rnn.train(word_batch, label_last_word, s['clr'])
                 rnn.normalize()
             if s['verbose']:
-                print '[learning] epoch %i >> %2.2f%%'%(e,(i+1)*100./nsentences),'completed in %.2f (sec) <<\r'%(time.time()-tic),
+                print('[learning] epoch %i >> %2.2f%%'%(e,(i+1)*100./nsentences),'completed in %.2f (sec) <<\r'%(time.time()-tic), end="")
                 sys.stdout.flush()
 
         # evaluation // back into the real world : idx -> words
@@ -89,18 +92,18 @@ if __name__ == '__main__':
             rnn.save(folder)
             best_f1 = res_valid['f1']
             if s['verbose']:
-                print 'NEW BEST: epoch', e, 'valid F1', res_valid['f1'], 'best test F1', res_test['f1'], ' '*20
+                print('NEW BEST: epoch', e, 'valid F1', res_valid['f1'], 'best test F1', res_test['f1'], ' '*20)
             s['vf1'], s['vp'], s['vr'] = res_valid['f1'], res_valid['p'], res_valid['r']
             s['tf1'], s['tp'], s['tr'] = res_test['f1'],  res_test['p'],  res_test['r']
             s['be'] = e
             subprocess.call(['mv', folder + '/current.test.txt', folder + '/best.test.txt'])
             subprocess.call(['mv', folder + '/current.valid.txt', folder + '/best.valid.txt'])
         else:
-            print ''
+            print('')
 
         # learning rate decay if no improvement in 10 epochs
         if s['decay'] and abs(s['be']-s['ce']) >= 10: s['clr'] *= 0.5
         if s['clr'] < 1e-5: break
 
-    print 'BEST RESULT: epoch', e, 'valid F1', s['vf1'], 'best test F1', s['tf1'], 'with the model', folder
+    print('BEST RESULT: epoch', e, 'valid F1', s['vf1'], 'best test F1', s['tf1'], 'with the model', folder)
 
