@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import gzip
 import cPickle
 import urllib
@@ -54,8 +56,9 @@ if __name__ == '__main__':
     wlength = 35
 
     for e in ['train','test']:
-      for sw, se, sl in zip(eval(e+'_x'), eval(e+'_ne'), eval(e+'_label')):
-        print 'WORD'.rjust(wlength), 'LABEL'.rjust(wlength)
-        for wx, la in zip(sw, sl): print idx2w[wx].rjust(wlength), idx2la[la].rjust(wlength)
-        print '\n'+'**'*30+'\n'
-        pdb.set_trace()
+        for sw, se, sl in zip(eval(e+'_x'), eval(e+'_ne'), eval(e+'_label')):
+            print 'WORD'.rjust(wlength), 'LABEL'.rjust(wlength)
+            for wx, la in zip(sw, sl):
+                print idx2w[wx].rjust(wlength), idx2la[la].rjust(wlength)
+            print '\n'+'**'*30+'\n'
+            # pdb.set_trace()

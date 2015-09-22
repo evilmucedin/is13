@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+
+import sys
+sys.path.append("/home/denplusplus/Programming")
+
 import numpy
 import time
 import sys
