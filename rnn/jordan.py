@@ -34,7 +34,7 @@ class model(object):
         self.names  = ['embeddings', 'Wx', 'Wh', 'W', 'bh', 'b', 's0']
         idxs = T.imatrix() # as many columns as context window size/lines as words in the sentence
         x = self.emb[idxs].reshape((idxs.shape[0], de*cs))
-        y    = T.iscalar('y') # label
+        y = T.iscalar('y') # label
 
         def recurrence(x_t, s_tm1):
             h_t = T.nnet.sigmoid(T.dot(x_t, self.Wx) + \
@@ -54,7 +54,7 @@ class model(object):
         lr = T.scalar('lr')
         nll = -T.mean(T.log(p_y_given_x_lastword)[y])
         gradients = T.grad( nll, self.params )
-        updates = OrderedDict(( p, p-lr*g ) for p, g in zip( self.params , gradients))
+        updates = OrderedDict(( p, p-lr*g ) for p, g in zip(self.params, gradients))
 
         # theano functions
         self.classify = theano.function(inputs=[idxs], outputs=y_pred)
@@ -64,8 +64,7 @@ class model(object):
                                       updates = updates )
 
         self.normalize = theano.function( inputs = [],
-                         updates = {self.emb:\
-                         self.emb/T.sqrt((self.emb**2).sum(axis=1)).dimshuffle(0,'x')})
+                         updates = {self.emb: self.emb/T.sqrt((self.emb**2).sum(axis=1)).dimshuffle(0, 'x')})
 
     def save(self, folder):
         for param, name in zip(self.params, self.names):
