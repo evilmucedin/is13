@@ -1,6 +1,8 @@
+import sys
+sys.path.append(".")
+
 import numpy
 import time
-import sys
 import subprocess
 import os
 import random
@@ -24,10 +26,12 @@ if __name__ == '__main__':
          'nepochs':50}
 
     folder = os.path.basename(__file__).split('.')[0]
-    if not os.path.exists(folder): os.mkdir(folder)
+    if not os.path.exists(folder):
+        os.mkdir(folder)
 
     # load the dataset
     train_set, valid_set, test_set, dic = load.atisfold(s['fold'])
+    print("keys: ", dic.keys())
     idx2label = dict((k,v) for v,k in dic['labels2idx'].iteritems())
     idx2word  = dict((k,v) for v,k in dic['words2idx'].iteritems())
 
@@ -36,8 +40,10 @@ if __name__ == '__main__':
     test_lex,  test_ne,  test_y  = test_set
 
     vocsize = len(dic['words2idx'])
+    print("vocsize: ", vocsize)
     nclasses = len(dic['labels2idx'])
     nsentences = len(train_lex)
+    print("nsentences: ", nsentences)
 
     # instanciate the model
     numpy.random.seed(s['seed'])
@@ -58,14 +64,13 @@ if __name__ == '__main__':
         tic = time.time()
         for i in xrange(nsentences):
             cwords = contextwin(train_lex[i], s['win'])
-            words  = map(lambda x: numpy.asarray(x).astype('int32'),\
-                         minibatch(cwords, s['bs']))
+            words  = map(lambda x: numpy.asarray(x).astype('int32'), minibatch(cwords, s['bs']))
             labels = train_y[i]
-            for word_batch , label_last_word in zip(words, labels):
+            for word_batch, label_last_word in zip(words, labels):
                 rnn.train(word_batch, label_last_word, s['clr'])
                 rnn.normalize()
             if s['verbose']:
-                print '[learning] epoch %i >> %2.2f%%'%(e,(i+1)*100./nsentences),'completed in %.2f (sec) <<\r'%(time.time()-tic),
+                print '[learning] epoch %i >> %2.2f%%' % (e,(i+1)*100./nsentences), 'completed in %.2f (sec) <<\r' % (time.time()-tic),
                 sys.stdout.flush()
 
         # evaluation // back into the real world : idx -> words
@@ -99,8 +104,10 @@ if __name__ == '__main__':
             print ''
 
         # learning rate decay if no improvement in 10 epochs
-        if s['decay'] and abs(s['be']-s['ce']) >= 10: s['clr'] *= 0.5
-        if s['clr'] < 1e-5: break
+        if s['decay'] and abs(s['be']-s['ce']) >= 10:
+            s['clr'] *= 0.5
+        if s['clr'] < 1e-5:
+            break
 
     print 'BEST RESULT: epoch', e, 'valid F1', s['vf1'], 'best test F1', s['tf1'], 'with the model', folder
 
