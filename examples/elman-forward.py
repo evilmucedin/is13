@@ -66,7 +66,7 @@ if __name__ == '__main__':
             words  = map(lambda x: numpy.asarray(x).astype('int32'),\
                          minibatch(cwords, s['bs']))
             labels = train_y[i]
-            for word_batch , label_last_word in zip(words, labels):
+            for word_batch, label_last_word in zip(words, labels):
                 rnn.train(word_batch, label_last_word, s['clr'])
                 rnn.normalize()
             if s['verbose']:

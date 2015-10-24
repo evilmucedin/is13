@@ -3,6 +3,7 @@ import numpy
 import os
 
 from theano import tensor as T
+from theano.printing import debugprint
 from collections import OrderedDict
 
 class model(object):
@@ -27,33 +28,31 @@ class model(object):
         self.params = [ self.emb, self.Wx, self.Wh, self.W, self.bh, self.b, self.h0 ]
         self.names  = ['embeddings', 'Wx', 'Wh', 'W', 'bh', 'b', 'h0']
         idxs = T.imatrix() # as many columns as context window size/lines as words in the sentence
-        x = self.emb[idxs].reshape((idxs.shape[0], de*cs))
-        y    = T.iscalar('y') # label
+        x = self.emb[idxs].reshape( (T.cast(idxs.shape[0], "int32"), de*cs) )
+        y = T.iscalar('y') # label
 
         def recurrence(x_t, h_tm1):
             h_t = T.nnet.sigmoid(T.dot(x_t, self.Wx) + T.dot(h_tm1, self.Wh) + self.bh)
             s_t = T.nnet.softmax(T.dot(h_t, self.W) + self.b)
             return [h_t, s_t]
 
-        [h, s], _ = theano.scan(fn=recurrence, sequences=x, outputs_info=[self.h0, None], \
-            n_steps=x.shape[0])
+        [h, s], _ = theano.scan(fn=recurrence, sequences=x, outputs_info=[self.h0, None], n_steps=T.cast(x.shape[0], "int32"))
 
         p_y_given_x_lastword = s[-1,0,:]
         p_y_given_x_sentence = s[:,0,:]
         y_pred = T.argmax(p_y_given_x_sentence, axis=1)
 
         # cost and gradients and learning rate
-        lr = T.scalar('lr')
+        lr = T.fscalar('lr')
         nll = -T.log(p_y_given_x_lastword)[y]
-        gradients = T.grad( nll, self.params )
-        updates = OrderedDict(( p, p-lr*g ) for p, g in zip(self.params, gradients))
+        gradients = T.grad(nll, self.params)
+        updates = OrderedDict( (p, p-lr*g) for p, g in zip(self.params, gradients) )
         
         # theano functions
         self.classify = theano.function(inputs=[idxs], outputs=y_pred)
 
-        self.train = theano.function(inputs  = [idxs, y, lr],
-                                     outputs = nll,
-                                     updates = updates)
+        self.train = theano.function(inputs  = [idxs, y, lr], outputs = nll, updates = updates)
+	debugprint(self.train)
 
         self.normalize = theano.function(inputs = [],
                          updates = {self.emb: self.emb/T.sqrt((self.emb**2).sum(axis=1)).dimshuffle(0, 'x')})
