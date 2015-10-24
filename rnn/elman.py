@@ -46,7 +46,7 @@ class model(object):
         lr = T.fscalar('lr')
         nll = -T.log(p_y_given_x_lastword)[y]
         gradients = T.grad(nll, self.params)
-        updates = OrderedDict( (p, p-lr*g) for p, g in zip(self.params, gradients) )
+        updates = OrderedDict( (p, p - lr*g) for p, g in zip(self.params, gradients) )
         
         # theano functions
         self.classify = theano.function(inputs=[idxs], outputs=y_pred)
@@ -54,8 +54,7 @@ class model(object):
         self.train = theano.function(inputs  = [idxs, y, lr], outputs = nll, updates = updates)
 	debugprint(self.train)
 
-        self.normalize = theano.function(inputs = [],
-                         updates = {self.emb: self.emb/T.sqrt((self.emb**2).sum(axis=1)).dimshuffle(0, 'x')})
+        self.normalize = theano.function(inputs = [], updates = {self.emb: self.emb/T.sqrt((self.emb**2).sum(axis=1)).dimshuffle(0, 'x')})
 
     def save(self, folder):   
         for param, name in zip(self.params, self.names):
